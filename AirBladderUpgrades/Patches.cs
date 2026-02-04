@@ -8,9 +8,9 @@ namespace AirBladderUpgrades
     [HarmonyPatch(typeof(AirBladder))] //patch the air bladder
     public class AirBladderPatches
     {
-        [HarmonyPatch(nameof(AirBladder.Awake))]
+        [HarmonyPatch(nameof(AirBladder.Start))]
         [HarmonyPostfix]
-        public static void Awake_Postfix(AirBladder __instance)
+        public static void Start_Postfix(AirBladder __instance)
         {
             if (__instance == null) return; 
             var tempstorage = __instance.GetComponent<StorageContainer>();
@@ -33,7 +33,7 @@ namespace AirBladderUpgrades
             if (__instance == null) return;
             var tempstorage = __instance.GetComponent<StorageContainer>();
             if (tempstorage == null) return;
-            if (Input.GetKeyDown(ModOptions.UpgradesContainerKey)) //check if the keybind to open the storage container is pressed
+            if (GameInput.GetButtonDown(Plugin.OpenUpgradesButton)) //check if the keybind to open the storage container is pressed
             {
                 Plugin.Logger.LogInfo("Open Storage Container Key pressed for Air Bladder!");
                 if (tempstorage.open) //check if its already open
@@ -69,7 +69,7 @@ namespace AirBladderUpgrades
 
     public class UpgradeData
     {
-        public static Dictionary<TechType, UpgradeData> upgradedata = new Dictionary<TechType, UpgradeData>();
+        public static Dictionary<TechType, UpgradeData> Upgradedata = new Dictionary<TechType, UpgradeData>();
         
         public float CapacityMultiplier;
 
@@ -99,7 +99,7 @@ namespace AirBladderUpgrades
                     isBleach = true;
                     break;
                 }
-                if (!upgradedata.TryGetValue(item, out upgrade))
+                if (!Upgradedata.TryGetValue(item, out upgrade))
                 {
                     Plugin.Logger.LogError($"Failed to find the upgrade data for: {item}!");
                     continue;

@@ -13,13 +13,5 @@ namespace AirBladderUpgrades
     [Menu("Air Bladder Upgrades")]
     public class ModOptions : ConfigFile //allow the player to change the open storage container keybind. let me know if i should change this
     {
-        [Keybind("Open Upgrades Container Key"), OnChange(nameof(KeyBindChangeEvent))]
-        public KeyCode OpenUpgradesContainerKey = KeyCode.N;
-
-        public static KeyCode UpgradesContainerKey = KeyCode.N;
-        public void KeyBindChangeEvent(KeybindChangedEventArgs newbind)
-        {
-            UpgradesContainerKey = newbind.Value;
-        }
     }
 }

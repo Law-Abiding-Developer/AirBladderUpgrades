@@ -31,6 +31,11 @@ namespace AirBladderUpgrades
 
         public static ModOptions ModOptions;
         
+        public static GameInput.Button OpenUpgradesButton = EnumHandler.AddEntry<GameInput.Button>("OpenABUpgrades")
+            .CreateInput("Open Air Bladder Upgrades")
+            .WithKeyboardBinding(GameInputHandler.Paths.Keyboard.V)
+            .WithCategory("Tools Upgrades");
+        
         public static TechCategory AirBladderCategory = EnumHandler.AddEntry<TechCategory>("Air Bladder Upgrades").WithPdaInfo("Air Bladder Upgrades").RegisterToTechGroup(UpgradesLIB.Plugin.toolupgrademodules);
         
         private void Awake()

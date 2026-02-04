@@ -15,17 +15,17 @@ namespace AirBladderUpgrades.Items.Capacity_Upgrades
         {
             mk1capacityprefabinfo = PrefabInfo.WithTechType("AirBladderCapacityUpgradeMk1", "Air Bladder Capacity Upgrade Mk 1", "Mk 1 Capacity for the Air Bladder. Doubles the Oxygen Capacity in the Air Bladder").WithIcon(SpriteManager.Get(TechType.AirBladder));
             var upgradedata = new UpgradeData(2);
-            UpgradeData.upgradedata.Add(mk1capacityprefabinfo.TechType, upgradedata);
+            UpgradeData.Upgradedata.Add(mk1capacityprefabinfo.TechType, upgradedata);
             mk1capacityprefab = new CustomPrefab(mk1capacityprefabinfo);
             var clone = new CloneTemplate(mk1capacityprefabinfo, techType);
             mk1capacityprefab.SetGameObject(clone);
             mk1capacityprefab.SetRecipe(new Nautilus.Crafting.RecipeData()
             {
                 craftAmount = 1,
-                Ingredients = new List<CraftData.Ingredient>()
+                Ingredients = new List<Ingredient>()
                 {
-                    new (TechType.Battery),
-                    new (TechType.Silicone)
+                    new (TechType.Battery,1),
+                    new (TechType.Silicone,1)
                 }
             })
             .WithFabricatorType(Handheldprefab.HandheldfabTreeType)
