@@ -20,7 +20,7 @@ namespace AirBladderUpgrades
     /*
      * Todo List: Complete for now
      */
-    [BepInPlugin("com.lawabidingtroller.airbladderupgrades", "AirBladderUpgrades", "0.1.0")]//next version to release
+    [BepInPlugin("com.lawabidingtroller.airbladderupgrades", "AirBladderUpgrades", "0.1.0")]
     [BepInDependency("com.snmodding.nautilus")]
     [BepInDependency("com.lawabidingmodder.upgradeslib")]
     public class Plugin : BaseUnityPlugin
