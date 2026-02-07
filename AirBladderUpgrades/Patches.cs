@@ -12,18 +12,17 @@ namespace AirBladderUpgrades
         [HarmonyPostfix]
         public static void Start_Postfix(AirBladder __instance)
         {
-            if (__instance == null) return; 
+            if (__instance == null) return;
             var tempstorage = __instance.GetComponent<StorageContainer>();
             if (tempstorage == null) return;
             tempstorage.container._label = "AIR BLADDER";
             var allowedtech = new TechType[4]
             {
                 TechType.Bleach, AirBladderCapacityUpgradeMk1.mk1capacityprefabinfo.TechType,
-                AirBladderCapacityUpgradeMk2.mk2capacityprefabinfo.TechType, 
+                AirBladderCapacityUpgradeMk2.mk2capacityprefabinfo.TechType,
                 AirBladderCapacityUpgradeMk3.mk3capacityprefabinfo.TechType,
             };
             tempstorage.container.SetAllowedTechTypes(allowedtech);
-            
         }
 
         [HarmonyPatch(nameof(AirBladder.Update))]
@@ -45,18 +44,14 @@ namespace AirBladderUpgrades
             }
         }
 
-        [HarmonyPatch(nameof(AirBladder.UpdateInflateState))] //patch the updateinflatestate method, which checks the current capacity
+        [HarmonyPatch(nameof(AirBladder.OnDraw))] //patch the updateinflatestate method, which checks the current capacity
         [HarmonyPrefix]
-        public static void UpdateInflateState_Prefix(AirBladder __instance) //change the capcity before it checks calls the method
+        public static void OnDraw_Prefix(AirBladder __instance) //change the capcity before it checks calls the method
         {
-
             if (__instance == null) return; //check if the instance is null
             var capacity = UpgradeData.GetCapacity(__instance, out var bleach);
-            if (!bleach && __instance.oxygenCapacity == 0)
-            {
-                __instance.oxygenCapacity = 5f;
-            }
-            __instance.oxygenCapacity *= capacity;
+            if (bleach) __instance.oxygenCapacity = 0;
+            __instance.oxygenCapacity = 5f * capacity;
         }
 
         [HarmonyPatch(nameof(AirBladder.OnDestroy))]
