@@ -2,6 +2,7 @@
 using AirBladderUpgrades.Items.Capacity_Upgrades;
 using HarmonyLib;
 using UnityEngine;
+using AirBladderUpgrades.Items.Force_Upgrades;
 
 namespace AirBladderUpgrades
 {
@@ -16,11 +17,13 @@ namespace AirBladderUpgrades
             var tempstorage = __instance.GetComponent<StorageContainer>();
             if (tempstorage == null) return;
             tempstorage.container._label = "AIR BLADDER";
-            var allowedtech = new TechType[4]
+            var allowedtech = new TechType[7]
             {
                 TechType.Bleach, AirBladderCapacityUpgradeMk1.mk1capacityprefabinfo.TechType,
                 AirBladderCapacityUpgradeMk2.mk2capacityprefabinfo.TechType,
                 AirBladderCapacityUpgradeMk3.mk3capacityprefabinfo.TechType,
+                ABForceUpgrades.ForcePIs[0].TechType, ABForceUpgrades.ForcePIs[1].TechType,
+                ABForceUpgrades.ForcePIs[2].TechType
             };
             tempstorage.container.SetAllowedTechTypes(allowedtech);
         }
@@ -44,14 +47,19 @@ namespace AirBladderUpgrades
             }
         }
 
-        [HarmonyPatch(nameof(AirBladder.OnDraw))] //patch the updateinflatestate method, which checks the current capacity
+        [HarmonyPatch(nameof(AirBladder.UpdateInflateState))] //patch the updateinflatestate method, which checks the current capacity
         [HarmonyPrefix]
-        public static void OnDraw_Prefix(AirBladder __instance) //change the capcity before it checks calls the method
+        public static void UpdateInflateState_Prefix(AirBladder __instance) //change the capcity before it checks calls the method
         {
             if (__instance == null) return; //check if the instance is null
-            var capacity = UpgradeData.GetCapacity(__instance, out var bleach);
-            if (bleach) __instance.oxygenCapacity = 0;
-            __instance.oxygenCapacity = 5f * capacity;
+            if (__instance.oxygen > __instance.oxygenCapacity) __instance.oxygen = __instance.oxygenCapacity;
+            var capacity = UpgradeData.GetHighestUpgrade(__instance, out var bleach);
+            __instance.buoyancyForce = 0.8f * capacity.ForceMultiplier;
+            if (bleach)
+            {
+                __instance.oxygenCapacity = 0f;
+            }
+            else __instance.oxygenCapacity = 15f * capacity.CapacityMultiplier/capacity.ForceMultiplier;
         }
 
         [HarmonyPatch(nameof(AirBladder.OnDestroy))]
@@ -67,13 +75,16 @@ namespace AirBladderUpgrades
         public static Dictionary<TechType, UpgradeData> Upgradedata = new Dictionary<TechType, UpgradeData>();
         
         public float CapacityMultiplier;
+        
+        public float ForceMultiplier;
 
-        public UpgradeData(float capacityMultiplier = 0)
+        public UpgradeData(float capacityMultiplier = 1, float  forceMultiplier = 1)
         {
-            
+            CapacityMultiplier = capacityMultiplier;
+            ForceMultiplier = forceMultiplier;
         }
 
-        public static float GetCapacity(AirBladder instance, out bool isBleach)
+        public static UpgradeData GetHighestUpgrade(AirBladder instance, out bool isBleach)
         {
             isBleach = false;
             var tempstorage  = instance.GetComponent<StorageContainer>();
@@ -81,27 +92,50 @@ namespace AirBladderUpgrades
             {
                 Plugin.Logger.LogError("Failed to find the storage container for the Air Bladder! WTF Happened.");
                 isBleach = true;
-                return 0;
+                return null;
             }
 
-            UpgradeData upgrade;
-            float highestcapacity = 0;
-            foreach (var item in tempstorage.container.GetItemTypes())
+            UpgradeData data = new UpgradeData();
+            for (int upgradeType = 0; upgradeType < 2; upgradeType++)
             {
-                if (item == TechType.Bleach)
+                float highestmultiplier = 1;
+                foreach (var item in tempstorage.container.GetItemTypes())
                 {
-                    ErrorMessage.AddWarning("The Air Bladder's ability to do work has been removed to protect you. And the environment");
-                    isBleach = true;
-                    break;
+                    if (item == TechType.Bleach)
+                    {
+                        ErrorMessage.AddWarning(
+                            "The Air Bladder's ability to do work has been removed to protect you. And the environment");
+                        isBleach = true;
+                        break;
+                    }
+
+                    if (!Upgradedata.TryGetValue(item, out var upgrade))
+                    {
+                        Plugin.Logger.LogError($"Failed to find the upgrade data for: {item}!");
+                        continue;
+                    }
+
+                    switch (upgradeType)
+                    {
+                        case 0:
+                            highestmultiplier = Mathf.Max(highestmultiplier, upgrade.CapacityMultiplier);
+                            break;
+                        case 1:
+                            highestmultiplier = Mathf.Min(highestmultiplier, upgrade.ForceMultiplier);
+                            break;
+                    }
                 }
-                if (!Upgradedata.TryGetValue(item, out upgrade))
+                switch (upgradeType)
                 {
-                    Plugin.Logger.LogError($"Failed to find the upgrade data for: {item}!");
-                    continue;
+                    case 0:
+                        data.CapacityMultiplier = highestmultiplier;
+                        break;
+                    case 1:
+                        data.ForceMultiplier = highestmultiplier;
+                        break;
                 }
-                highestcapacity = Mathf.Max(highestcapacity, upgrade.CapacityMultiplier);
             }
-            return highestcapacity;
+            return data;
         }
     }
 

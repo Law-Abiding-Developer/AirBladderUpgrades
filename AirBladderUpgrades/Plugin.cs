@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Reflection;
+﻿using System.Reflection;
 using BepInEx;
 using BepInEx.Logging;
 using HarmonyLib;
@@ -8,6 +7,7 @@ using UnityEngine;
 using AirBladderUpgrades;
 using System;
 using AirBladderUpgrades.Items.Capacity_Upgrades;
+using AirBladderUpgrades.Items.Force_Upgrades;
 using Nautilus.Handlers;
 using JetBrains.Annotations;
 using Nautilus.Options;
@@ -73,6 +73,7 @@ namespace AirBladderUpgrades
             AirBladderCapacityUpgradeMk1.Register();
             AirBladderCapacityUpgradeMk2.Register();
             AirBladderCapacityUpgradeMk3.Register();
+            ABForceUpgrades.Register();
             Logger.LogInfo("Most, if not, all, prefabs initalized successfully!");
         }
     }

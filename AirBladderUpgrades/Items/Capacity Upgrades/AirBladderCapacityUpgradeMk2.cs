@@ -24,7 +24,7 @@ namespace AirBladderUpgrades.Items.Capacity_Upgrades
                 craftAmount = 1,
                 Ingredients = new List<Ingredient>()
                 {
-                    new (TechType.JeweledDiskPiece, 2),
+                    new (TechType.Silicone, 2),
                     new (AirBladderCapacityUpgradeMk1.mk1capacityprefabinfo.TechType,1)
                 }
             })
